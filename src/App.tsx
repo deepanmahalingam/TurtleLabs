@@ -1,25 +1,28 @@
 import React from 'react';
-import logo from './logo.svg';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { AppProvider } from './context/AppContext';
+import Navbar from './components/Navbar';
+import BubbleBackground from './components/BubbleBackground';
+import LandingPage from './pages/LandingPage';
+import GeneratorPage from './pages/GeneratorPage';
+import WorksheetPreview from './pages/WorksheetPreview';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppProvider>
+      <Router>
+        <div className="app">
+          <BubbleBackground />
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/generate" element={<GeneratorPage />} />
+            <Route path="/preview" element={<WorksheetPreview />} />
+          </Routes>
+        </div>
+      </Router>
+    </AppProvider>
   );
 }
 
