@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/TurtleLabs/static/css/main.61d8d987.css",
+    "main.js": "/TurtleLabs/static/js/main.c6123597.js",
+    "static/js/239.3a9fef36.chunk.js": "/TurtleLabs/static/js/239.3a9fef36.chunk.js",
+    "static/js/977.85ce0859.chunk.js": "/TurtleLabs/static/js/977.85ce0859.chunk.js",
+    "static/js/732.931cf4d9.chunk.js": "/TurtleLabs/static/js/732.931cf4d9.chunk.js",
+    "index.html": "/TurtleLabs/index.html",
+    "main.61d8d987.css.map": "/TurtleLabs/static/css/main.61d8d987.css.map",
+    "main.c6123597.js.map": "/TurtleLabs/static/js/main.c6123597.js.map",
+    "239.3a9fef36.chunk.js.map": "/TurtleLabs/static/js/239.3a9fef36.chunk.js.map",
+    "977.85ce0859.chunk.js.map": "/TurtleLabs/static/js/977.85ce0859.chunk.js.map",
+    "732.931cf4d9.chunk.js.map": "/TurtleLabs/static/js/732.931cf4d9.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.61d8d987.css",
+    "static/js/main.c6123597.js"
+  ]
+}
