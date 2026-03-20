@@ -82,10 +82,54 @@ function parseSpotPrompt(p: string): ParsedPrompt {
 function parseMazePrompt(p: string): ParsedPrompt {
   let difficulty: 'easy' | 'medium' | 'hard' = 'easy';
   if (/\b(medium|moderate)\b/.test(p)) difficulty = 'medium';
-  if (/\b(hard|difficult|challenging)\b/.test(p)) difficulty = 'hard';
+  if (/\b(hard|difficult|challenging|complex)\b/.test(p)) difficulty = 'hard';
   if (/\b(2nd grade|grade 2)\b/.test(p)) difficulty = 'medium';
 
-  return { type: 'maze', difficulty };
+  // Extract theme/subject from prompt
+  const themeKeywords: Record<string, { startEmoji: string; endEmoji: string; startLabel: string; endLabel: string }> = {
+    dog: { startEmoji: '🐕', endEmoji: '🦴', startLabel: 'dog', endLabel: 'bone' },
+    cat: { startEmoji: '🐱', endEmoji: '🐟', startLabel: 'cat', endLabel: 'fish' },
+    rabbit: { startEmoji: '🐰', endEmoji: '🥕', startLabel: 'rabbit', endLabel: 'carrot' },
+    bunny: { startEmoji: '🐰', endEmoji: '🥕', startLabel: 'bunny', endLabel: 'carrot' },
+    mouse: { startEmoji: '🐭', endEmoji: '🧀', startLabel: 'mouse', endLabel: 'cheese' },
+    bee: { startEmoji: '🐝', endEmoji: '🌸', startLabel: 'bee', endLabel: 'flower' },
+    pirate: { startEmoji: '🏴‍☠️', endEmoji: '💰', startLabel: 'pirate', endLabel: 'treasure' },
+    astronaut: { startEmoji: '🧑‍🚀', endEmoji: '🚀', startLabel: 'astronaut', endLabel: 'rocket' },
+    princess: { startEmoji: '👸', endEmoji: '🏰', startLabel: 'princess', endLabel: 'castle' },
+    knight: { startEmoji: '🗡️', endEmoji: '🐉', startLabel: 'knight', endLabel: 'dragon' },
+    monkey: { startEmoji: '🐒', endEmoji: '🍌', startLabel: 'monkey', endLabel: 'banana' },
+    bear: { startEmoji: '🐻', endEmoji: '🍯', startLabel: 'bear', endLabel: 'honey' },
+    fish: { startEmoji: '🐟', endEmoji: '🌊', startLabel: 'fish', endLabel: 'ocean' },
+    bird: { startEmoji: '🐦', endEmoji: '🪺', startLabel: 'bird', endLabel: 'nest' },
+    turtle: { startEmoji: '🐢', endEmoji: '🌊', startLabel: 'turtle', endLabel: 'ocean' },
+    car: { startEmoji: '🚗', endEmoji: '🏠', startLabel: 'car', endLabel: 'home' },
+    dinosaur: { startEmoji: '🦕', endEmoji: '🥚', startLabel: 'dinosaur', endLabel: 'egg' },
+    unicorn: { startEmoji: '🦄', endEmoji: '🌈', startLabel: 'unicorn', endLabel: 'rainbow' },
+    frog: { startEmoji: '🐸', endEmoji: '🪷', startLabel: 'frog', endLabel: 'lily pad' },
+    penguin: { startEmoji: '🐧', endEmoji: '🧊', startLabel: 'penguin', endLabel: 'igloo' },
+  };
+
+  let theme = 'turtle'; // default
+  for (const key of Object.keys(themeKeywords)) {
+    if (p.includes(key)) {
+      theme = key;
+      break;
+    }
+  }
+
+  // Also check for specific end-goal keywords
+  const endGoals: Record<string, string> = {
+    bone: 'dog', cheese: 'mouse', carrot: 'rabbit', banana: 'monkey',
+    honey: 'bear', treasure: 'pirate', castle: 'princess', flower: 'bee',
+  };
+  for (const [goal, themeKey] of Object.entries(endGoals)) {
+    if (p.includes(goal) && theme === 'turtle') {
+      theme = themeKey;
+      break;
+    }
+  }
+
+  return { type: 'maze', difficulty, theme, subject: theme };
 }
 
 function parseColoringPrompt(p: string): ParsedPrompt {

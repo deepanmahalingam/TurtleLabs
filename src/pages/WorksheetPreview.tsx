@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
@@ -9,30 +9,38 @@ import { generateSpotDifference, SpotDiffScene } from '../generators/spotDiffere
 import { generateColoring, ColoringData } from '../generators/coloringGenerator';
 import jsPDF from 'jspdf';
 
+function generateWorksheetData(worksheet: any): any {
+  if (!worksheet) return null;
+  const d = worksheet.data;
+  switch (worksheet.type) {
+    case 'math':
+      return generateMathWorksheet(d.operations, d.digits, d.questionCount);
+    case 'maze':
+      return generateMaze(d.difficulty, d.theme);
+    case 'dot-to-dot':
+      return generateDotToDot(d.subject, d.maxNumber);
+    case 'spot-difference':
+      return generateSpotDifference(d.theme);
+    case 'coloring':
+      return generateColoring(d.subject);
+    default:
+      return null;
+  }
+}
+
 const WorksheetPreview: React.FC = () => {
   const navigate = useNavigate();
-  const { currentWorksheet, addWorksheet } = useApp();
+  const { currentWorksheet, addWorksheet, setCurrentWorksheet } = useApp();
   const worksheetRef = useRef<HTMLDivElement>(null);
   const [showAnswerKey, setShowAnswerKey] = useState(false);
+  const [worksheetData, setWorksheetData] = useState<any>(null);
 
-  const worksheetData = React.useMemo(() => {
-    if (!currentWorksheet) return null;
-    const d = currentWorksheet.data;
-    switch (currentWorksheet.type) {
-      case 'math':
-        return generateMathWorksheet(d.operations, d.digits, d.questionCount);
-      case 'maze':
-        return generateMaze(d.difficulty);
-      case 'dot-to-dot':
-        return generateDotToDot(d.subject, d.maxNumber);
-      case 'spot-difference':
-        return generateSpotDifference(d.theme);
-      case 'coloring':
-        return generateColoring(d.subject);
-      default:
-        return null;
+  // Generate new data whenever currentWorksheet changes (by id)
+  useEffect(() => {
+    if (currentWorksheet) {
+      setWorksheetData(generateWorksheetData(currentWorksheet));
     }
-  }, [currentWorksheet]);
+  }, [currentWorksheet?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDownloadPDF = useCallback(async () => {
     if (!worksheetRef.current) return;
@@ -121,7 +129,16 @@ const WorksheetPreview: React.FC = () => {
   };
 
   const handleRegenerate = () => {
-    navigate('/generate', { state: { prompt: currentWorksheet?.prompt } });
+    if (!currentWorksheet) return;
+    // Create a new worksheet with a fresh id to trigger re-generation
+    const newWorksheet = {
+      ...currentWorksheet,
+      id: Date.now().toString(),
+      createdAt: new Date(),
+    };
+    setCurrentWorksheet(newWorksheet);
+    // Generate fresh random data
+    setWorksheetData(generateWorksheetData(newWorksheet));
   };
 
   if (!currentWorksheet || !worksheetData) {
@@ -343,6 +360,7 @@ const MazePreview: React.FC<{ data: MazeData; showSolution: boolean }> = ({ data
   const cellSize = Math.min(700 / data.width, 850 / data.height);
   const offsetX = (800 - data.width * cellSize) / 2;
   const offsetY = 140;
+  const { theme } = data;
 
   return (
     <svg viewBox="0 0 800 1131" style={{ width: '100%', display: 'block' }}>
@@ -350,10 +368,10 @@ const MazePreview: React.FC<{ data: MazeData; showSolution: boolean }> = ({ data
       <rect x="0" y="0" width="800" height="8" fill="#9b59b6" />
 
       <text x="400" y="50" textAnchor="middle" fontSize="26" fontWeight="bold" fill="#0a4d68" fontFamily="Arial, sans-serif">
-        Find the Way!
+        {theme.title}
       </text>
       <text x="400" y="75" textAnchor="middle" fontSize="14" fill="#888" fontFamily="Arial, sans-serif">
-        Help the baby turtle reach the ocean! ({data.difficulty})
+        {theme.subtitle} ({data.difficulty})
       </text>
       <text x="400" y="95" textAnchor="middle" fontSize="12" fill="#088395" fontFamily="Arial, sans-serif">
         TurtleWorksheet Lab
@@ -401,24 +419,24 @@ const MazePreview: React.FC<{ data: MazeData; showSolution: boolean }> = ({ data
         />
       )}
 
-      {/* Start - Baby turtle emoji */}
+      {/* Start icon */}
       <text
         x={offsetX + data.start.x * cellSize + cellSize / 2}
         y={offsetY + data.start.y * cellSize + cellSize / 2 + 6}
         textAnchor="middle"
         fontSize={cellSize * 0.6}
       >
-        🐢
+        {theme.startEmoji}
       </text>
 
-      {/* End - Ocean */}
+      {/* End icon */}
       <text
         x={offsetX + data.end.x * cellSize + cellSize / 2}
         y={offsetY + data.end.y * cellSize + cellSize / 2 + 6}
         textAnchor="middle"
         fontSize={cellSize * 0.6}
       >
-        🌊
+        {theme.endEmoji}
       </text>
 
       <rect x="0" y="1123" width="800" height="8" fill="#9b59b6" />

@@ -39,6 +39,7 @@ const GeneratorPage: React.FC = () => {
 
   // Maze overrides
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const [mazeTheme, setMazeTheme] = useState('turtle');
 
   // Dot overrides
   const [maxNumber, setMaxNumber] = useState(30);
@@ -69,8 +70,10 @@ const GeneratorPage: React.FC = () => {
     if (result.questionCount) setQuestionCount(result.questionCount);
     if (result.difficulty) setDifficulty(result.difficulty);
     if (result.maxNumber) setMaxNumber(result.maxNumber);
-    if (result.subject) setDotSubject(result.subject);
-    if (result.theme) setSpotTheme(result.theme);
+    if (result.subject && result.type === 'dot-to-dot') setDotSubject(result.subject);
+    if (result.subject && result.type === 'maze') setMazeTheme(result.subject);
+    if (result.theme && result.type === 'spot-difference') setSpotTheme(result.theme);
+    if (result.theme && result.type === 'maze') setMazeTheme(result.theme);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +100,7 @@ const GeneratorPage: React.FC = () => {
           break;
         case 'maze':
           worksheetData.difficulty = difficulty;
+          worksheetData.theme = mazeTheme;
           break;
         case 'dot-to-dot':
           worksheetData.maxNumber = maxNumber;
@@ -326,26 +330,46 @@ const GeneratorPage: React.FC = () => {
               )}
 
               {parsed.type === 'maze' && (
-                <div>
-                  <label style={labelStyle}>Difficulty</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {(['easy', 'medium', 'hard'] as const).map(d => (
-                      <button
-                        key={d}
-                        onClick={() => setDifficulty(d)}
-                        style={{
-                          padding: '8px 20px',
-                          borderRadius: '15px',
-                          fontSize: '0.9rem',
-                          fontWeight: 600,
-                          background: difficulty === d ? '#05bfdb' : '#eee',
-                          color: difficulty === d ? 'white' : '#666',
-                          textTransform: 'capitalize',
-                        }}
-                      >
-                        {d}
-                      </button>
-                    ))}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label style={labelStyle}>Difficulty</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {(['easy', 'medium', 'hard'] as const).map(d => (
+                        <button
+                          key={d}
+                          onClick={() => setDifficulty(d)}
+                          style={{
+                            padding: '8px 20px',
+                            borderRadius: '15px',
+                            fontSize: '0.9rem',
+                            fontWeight: 600,
+                            background: difficulty === d ? '#05bfdb' : '#eee',
+                            color: difficulty === d ? 'white' : '#666',
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Theme</label>
+                    <select
+                      value={mazeTheme}
+                      onChange={e => setMazeTheme(e.target.value)}
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '10px',
+                        border: '2px solid #eee',
+                        fontSize: '0.9rem',
+                        width: '100%',
+                      }}
+                    >
+                      {['turtle', 'dog', 'cat', 'rabbit', 'mouse', 'bee', 'monkey', 'bear', 'fish', 'bird', 'frog', 'penguin', 'unicorn', 'dinosaur', 'pirate', 'princess', 'knight', 'astronaut', 'car'].map(t => (
+                        <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               )}
